@@ -14,7 +14,7 @@
              BorderBrush="#FF443E3E"
              BorderThickness="1"
              d:DesignHeight="350"
-             d:DesignWidth="800" FontSize="11">
+             d:DesignWidth="800" FontSize="12">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -143,10 +143,17 @@
                     Grid.Row="1"
                     Margin="2,0,0,0" />
 
-        <StackPanel x:Name="HexDataStackPanel"
-                    Grid.Row="1"
+        <Grid Grid.Row="1"
                     Grid.Column="1"
-                    Margin="10,0" />
+                    Margin="10,0" >
+            <!--To improve performance,and avoid that HexDataStackPanel can't be “hovered”,the hexpanel consists of three layers-->
+            <!--This layer shows background only(like modified,selected and bla bla...)-->
+            <Canvas x:Name="HexDataBackgroundLayer"/>
+            <!--This layer shows the text of hexbyte-->
+            <TextBlock x:Name="HexTextLayer"  FontFamily="Lucida Console" LineHeight="{x:Static local:HexaEditor.HexLineHeight}"/>
+            <!--This layer is for accepting the userinput(mouse and keyboard)-->
+            <StackPanel x:Name="HexDataStackPanel" />
+        </Grid>
 
         <ScrollBar x:Name="VerticalScrollBar"
                    HorizontalAlignment="Right"
@@ -164,10 +171,24 @@
                     Grid.Row="0"
                     Margin="10,0" />
 
-        <StackPanel x:Name="StringDataStackPanel"
-                    Grid.Row="1"
+        <Grid Grid.Row="1"
                     Grid.Column="2"
-                    Margin="10,0,0,0" />
+                    Margin="10,0,0,0">
+            <Grid.Resources>
+                <Style TargetType="TextBlock" >
+                    <!--Lucida is a equal-wide for every single character-->
+                    <Setter Property="FontFamily" Value="Lucida Console"/>
+                    <Setter Property="LineHeight" Value="22"/>
+                    <Setter Property="FontSize" Value="12"/>
+                </Style>
+            </Grid.Resources>
+            <!--This layer shows background only(like modified,selected and bla bla...)-->
+            <Canvas x:Name="StringDataBackgroundLayer"/>
+            <!--This layer shows the text of stringbyte-->
+            <TextBlock x:Name="StringTextLayer" />
+            <!--This layer is for accepting the userinput(mouse and keyboard)-->
+            <StackPanel x:Name="StringDataStackPanel" />
+        </Grid>
 
         <Grid x:Name="StatusBarGrid"
               Background="WhiteSmoke"
