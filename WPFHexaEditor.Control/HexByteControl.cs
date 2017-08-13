@@ -450,11 +450,9 @@ namespace WPFHexaEditor.Control
             if (!ReadOnlyMode)
                 if (KeyValidator.IsHexKey(e.Key))
                 {
-                    string key;
-                    if (KeyValidator.IsNumericKey(e.Key))
-                        key = KeyValidator.GetDigitFromKey(e.Key).ToString();
-                    else
-                        key = e.Key.ToString().ToLower();
+                    var keyByte = (byte) KeyValidator.GetDigitFromKey(e.Key);
+
+
 
                     switch (_keyDownLabel)
                     {
@@ -462,15 +460,23 @@ namespace WPFHexaEditor.Control
                             //FirstHexChar.Text = key;
                             _keyDownLabel = KeyDownLabel.SecondChar;
                             Action = ByteAction.Modified;
-                            //Byte = ByteConverters.HexToByte(FirstHexChar.Text.ToString() + SecondHexChar.Text.ToString())[0];
+                            if(Byte != null) {
+                                Byte = (byte)( keyByte * 16 + (Byte.Value % 16) );
+                            }
+                            else {
+                                Byte = (byte)( keyByte * 16 );
+                            }
                             break;
                         case KeyDownLabel.SecondChar:
-                            //SecondHexChar.Text = key;
                             _keyDownLabel = KeyDownLabel.NextPosition;
 
                             Action = ByteAction.Modified;
-                            //Byte = ByteConverters.HexToByte(FirstHexChar.Text.ToString() + SecondHexChar.Text.ToString())[0];
-
+                            if(Byte != null) {
+                                Byte = (byte)((Byte.Value / 16) + keyByte);
+                            }
+                            else {
+                                Byte = (byte)(keyByte * 16);
+                            }
                             //Move focus event
                             MoveNext?.Invoke(this, new EventArgs());
                             break;
