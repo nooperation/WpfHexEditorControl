@@ -575,7 +575,17 @@ namespace WPFHexaEditor.Control
             if (ctrl != null)
             {
                 _provider.AddByteModified(ctrl.Byte, ctrl.BytePositionInFile);
+                
                 SetScrollMarker(ctrl.BytePositionInFile, ScrollMarker.ByteModified);
+                
+                //Sync the Byte with hex and string control;
+                TraverseStringAndDataControls(byteCtrl => {
+                    if (byteCtrl.BytePositionInFile == ctrl.BytePositionInFile) {
+                        byteCtrl.InternalChange = true;
+                        byteCtrl.Byte = ctrl.Byte;
+                        byteCtrl.InternalChange = false;
+                    }
+                });
                 UpdateDataInlines();
             }
             UpdateStatusBar();
@@ -1212,13 +1222,18 @@ namespace WPFHexaEditor.Control
             if (ctrl != null)
             {
                 ctrl.IsSelected = false;
-                SetFocusStringDataPanel(ctrl.BytePositionInFile + 1);
+                if(ctrl is HexByteControl) {
+                    SetFocusHexDataPanel(ctrl.BytePositionInFile + 1);
+                }
+                else if(ctrl is StringByteControl){
+                    SetFocusStringDataPanel(ctrl.BytePositionInFile + 1);
+                }
 
                 SelectionStart++;
                 SelectionStop++;
                 UpdateByteModified();
             }
-
+            
         }
 
         #endregion Selection Property/Methods/Event
@@ -2346,7 +2361,7 @@ namespace WPFHexaEditor.Control
                 if (hexCtrl.Byte != null) {
                     var hexStr = new string(ByteConverters.ByteToHexCharArray(hexCtrl.Byte.Value)) + HexIndent;
                     var dataStr = ByteConverters.ByteToChar(hexCtrl.Byte.Value).ToString();
-
+                    
                     if (hexCtrl.IsFocus) {
                         appendWithLastRun(hexStr , dataStr , Colors.White);
                     }

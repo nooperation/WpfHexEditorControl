@@ -22,5 +22,6 @@ namespace WPFHexaEditor.Core.Interface
         bool IsSelected { get; set; }
         bool FirstSelected { get; set; }
         bool ReadOnlyMode { get; set; }
+        bool InternalChange { get; set; }
     }
 }

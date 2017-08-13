@@ -472,7 +472,7 @@ namespace WPFHexaEditor.Control
 
                             Action = ByteAction.Modified;
                             if(Byte != null) {
-                                Byte = (byte)((Byte.Value / 16) + keyByte);
+                                Byte = (byte)(Byte.Value / 16 * 16 + keyByte);
                             }
                             else {
                                 Byte = (byte)(keyByte * 16);

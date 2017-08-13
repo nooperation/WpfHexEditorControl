@@ -464,14 +464,10 @@ namespace WPFHexaEditor.Control
 
             if (IsFocus)
             {
-                //Foreground = Brushes.White;
                 BackgroundLayer.Fill = Brushes.Black;
             }
             else if(IsSelected)
             {
-                //FontWeight = _parent.FontWeight;
-                //Foreground = _parent.ForegroundContrast;
-
                 if (FirstSelected)
                     BackgroundLayer.Fill = _parent.SelectionFirstColor;
                 else
@@ -481,9 +477,6 @@ namespace WPFHexaEditor.Control
             }
             else if (IsHighLight)
             {
-                //FontWeight = _parent.FontWeight;
-                //Foreground = _parent.Foreground;
-
                 BackgroundLayer.Fill = _parent.HighLightColor;
 
                 return;
@@ -509,7 +502,7 @@ namespace WPFHexaEditor.Control
                 BackgroundLayer.Fill = Brushes.Transparent;
                 //Foreground = _parent.Foreground;
 
-                if (TypeOfCharacterTable == CharacterTableType.TBLFile)
+                if (TypeOfCharacterTable == CharacterTableType.TBLFile && Byte != null)
                     switch (DTE.TypeDTE(ByteConverters.ByteToChar(Byte.Value).ToString()))
                     {
                         case DTEType.DualTitleEncoding:
@@ -654,43 +647,41 @@ namespace WPFHexaEditor.Control
             if (!ReadOnlyMode)
             {
                 bool isok = false;
+                string text = string.Empty;
 
                 if (Keyboard.GetKeyStates(Key.CapsLock) == KeyStates.Toggled)
                 {
                     if (Keyboard.Modifiers != ModifierKeys.Shift && e.Key != Key.RightShift && e.Key != Key.LeftShift)
                     {
-                        //Text = KeyValidator.GetCharFromKey(e.Key).ToString();
+                        text = KeyValidator.GetCharFromKey(e.Key).ToString();
                         isok = true;
                     }
                     else if (Keyboard.Modifiers == ModifierKeys.Shift && e.Key != Key.RightShift && e.Key != Key.LeftShift)
                     {
                         isok = true;
-                        //Text = KeyValidator.GetCharFromKey(e.Key).ToString().ToLower(); 
+                        text = KeyValidator.GetCharFromKey(e.Key).ToString().ToLower(); 
                     }
                 }
                 else
                 {
                     if (Keyboard.Modifiers != ModifierKeys.Shift && e.Key != Key.RightShift && e.Key != Key.LeftShift)
                     {
-                        //Text = KeyValidator.GetCharFromKey(e.Key).ToString().ToLower(); 
+                        text = KeyValidator.GetCharFromKey(e.Key).ToString().ToLower(); 
                         isok = true;
                     }
                     else if (Keyboard.Modifiers == ModifierKeys.Shift && e.Key != Key.RightShift && e.Key != Key.LeftShift)
                     {
                         isok = true;
-                        //Text = KeyValidator.GetCharFromKey(e.Key).ToString();
+                        text = KeyValidator.GetCharFromKey(e.Key).ToString();
                     }
                 }
 
                 //Move focus event
-                if (isok)
-                    if (MoveNext != null)
-                    {
-                        Action = ByteAction.Modified;
-                        //Byte = ByteConverters.CharToByte(Text.ToString()[0]);
-
-                        MoveNext(this, new EventArgs());
-                    }
+                if (isok) {
+                    Action = ByteAction.Modified;
+                    Byte = ByteConverters.CharToByte(text[0]);
+                    MoveNext?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
 
