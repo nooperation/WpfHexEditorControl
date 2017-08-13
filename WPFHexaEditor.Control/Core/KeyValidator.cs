@@ -61,6 +61,14 @@ namespace WPFHexaEditor.Core
                 case Key.NumPad8: return 8;
                 case Key.D9:
                 case Key.NumPad9: return 9;
+                
+                case Key.A:
+                case Key.B:
+                case Key.C:
+                case Key.D:
+                case Key.E:
+                case Key.F:
+                    return (int)(key - 34);
                 default: throw new ArgumentOutOfRangeException("Invalid key: " + key.ToString());
             }
         }
