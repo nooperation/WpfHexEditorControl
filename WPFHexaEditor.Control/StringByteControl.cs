@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using WPFHexaEditor.Core;
 using WPFHexaEditor.Core.Bytes;
 using WPFHexaEditor.Core.CharacterTable;
@@ -17,7 +18,7 @@ using WPFHexaEditor.Core.Interface;
 
 namespace WPFHexaEditor.Control
 {
-    internal partial class StringByteControl : TextBlock, IByteControl
+    internal partial class StringByteControl : Border, IByteControl
     {
         //private bool _isByteModified = false;
         private bool _readOnlyMode;
@@ -77,17 +78,16 @@ namespace WPFHexaEditor.Control
         /// Default contructor
         /// </summary>
         /// <param name="parent"></param>
-        public StringByteControl(HexaEditor parent)
+        public StringByteControl(HexaEditor parent,Shape backgroundLayer = null)
         {
             LoadDict("/WPFHexaEditor;component/Resources/Dictionary/ToolTipDictionary.xaml");
 
-            Width = 12;
+            Width = 6;
             Height = 22;
 
             Focusable = true;
             DataContext = this;
-            Padding = new Thickness(0);
-            TextAlignment = TextAlignment.Center;
+            //Padding = new Thickness(0);
             var txtBinding = new Binding();
             txtBinding.Source = this.FindResource("ByteToolTip");
             txtBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
@@ -99,12 +99,15 @@ namespace WPFHexaEditor.Control
             MouseLeave += UserControl_MouseLeave;
             KeyDown += UserControl_KeyDown;
             MouseDown += StringByteLabel_MouseDown;
-
+            
             _parent = parent;
+            BackgroundLayer = backgroundLayer;
         }
 
         #region DependencyProperty
 
+        //This elment is under the bottom layer of the control;
+        public Shape BackgroundLayer { get; }
         /// <summary>
         /// Position in file
         /// </summary>
@@ -146,21 +149,20 @@ namespace WPFHexaEditor.Control
         {
             StringByteControl ctrl = d as StringByteControl;
 
-            if (e.NewValue != null)
-            {
-                if (e.NewValue != e.OldValue)
-                {
+            if (e.NewValue != null) {
+                if (e.NewValue != e.OldValue) {
                     if (ctrl.Action != ByteAction.Nothing && ctrl.InternalChange == false)
                         ctrl.StringByteModified?.Invoke(ctrl, new EventArgs());
 
-                    ctrl.UpdateLabelFromByte();
+                    //ctrl.UpdateLabelFromByte();
                     ctrl.UpdateHexString();
 
                     ctrl.UpdateVisual();
                 }
             }
-            else
-                ctrl.UpdateLabelFromByte();
+            else {
+                //ctrl.UpdateLabelFromByte();
+            }
         }
 
         /// <summary>
@@ -182,7 +184,7 @@ namespace WPFHexaEditor.Control
 
             if (e.NewValue != e.OldValue)
             {
-                ctrl.UpdateLabelFromByte();
+                //ctrl.UpdateLabelFromByte();
                 ctrl.UpdateVisual();
             }
         }
@@ -334,7 +336,7 @@ namespace WPFHexaEditor.Control
         {
             StringByteControl ctrl = d as StringByteControl;
 
-            ctrl.UpdateLabelFromByte();
+            //ctrl.UpdateLabelFromByte();
         }
 
         /// <summary>
@@ -357,7 +359,7 @@ namespace WPFHexaEditor.Control
         {
             StringByteControl ctrl = d as StringByteControl;
 
-            ctrl.UpdateLabelFromByte();
+            //ctrl.UpdateLabelFromByte();
             ctrl.UpdateHexString();
         }
 
@@ -375,71 +377,73 @@ namespace WPFHexaEditor.Control
 
         #endregion Characters tables
 
+
+        //Cuz ByteControls don't show character now,UpdateLabel Method are removed temporarily now;
         /// <summary>
         /// Update control label from byte property
         /// </summary>
-        private void UpdateLabelFromByte()
-        {
-            if (Byte != null)
-            {
-                switch (TypeOfCharacterTable)
-                {
-                    case CharacterTableType.ASCII:
-                        Text = ByteConverters.ByteToChar(Byte.Value).ToString();
-                        Width = 12;
-                        break;
+        //private void UpdateLabelFromByte()
+        //{
+        //    if (Byte != null)
+        //    {
+        //        switch (TypeOfCharacterTable)
+        //        {
+        //            case CharacterTableType.ASCII:
+        //                Text = ByteConverters.ByteToChar(Byte.Value).ToString();
+        //                Width = 12;
+        //                break;
 
-                    case CharacterTableType.TBLFile:
-                        ReadOnlyMode = !_TBLCharacterTable.AllowEdit;
+        //            case CharacterTableType.TBLFile:
+        //                ReadOnlyMode = !_TBLCharacterTable.AllowEdit;
 
-                        if (_TBLCharacterTable != null)
-                        {
-                            string content = "#";
+        //                if (_TBLCharacterTable != null)
+        //                {
+        //                    string content = "#";
 
-                            if (TBL_ShowMTE)
-                                if (ByteNext.HasValue)
-                                {
-                                    string MTE = (ByteConverters.ByteToHex(Byte.Value) + ByteConverters.ByteToHex(ByteNext.Value)).ToUpper();
-                                    content = _TBLCharacterTable.FindTBLMatch(MTE, true);
-                                }
+        //                    if (TBL_ShowMTE)
+        //                        if (ByteNext.HasValue)
+        //                        {
+        //                            string MTE = (ByteConverters.ByteToHex(Byte.Value) + ByteConverters.ByteToHex(ByteNext.Value)).ToUpper();
+        //content = _TBLCharacterTable.FindTBLMatch(MTE, true);
+        //                        }
 
-                            if (content == "#")
-                                content = _TBLCharacterTable.FindTBLMatch(ByteConverters.ByteToHex(Byte.Value).ToUpper().ToUpper(), true);
+        //                    if (content == "#")
+        //                        content = _TBLCharacterTable.FindTBLMatch(ByteConverters.ByteToHex(Byte.Value).ToUpper().ToUpper(), true);
 
-                            Text = content;
+        //                    Text = content;
 
-                            //TODO: CHECK FOR AUTO ADAPT TO CONTENT AND FONTSIZE
-                            switch (DTE.TypeDTE(content))
-                            {
-                                case DTEType.DualTitleEncoding:
-                                    Width = 12 + content.Length * 2.2D;
-                                    break;
+        //                    //TODO: CHECK FOR AUTO ADAPT TO CONTENT AND FONTSIZE
+        //                    switch (DTE.TypeDTE(content))
+        //                    {
+        //                        case DTEType.DualTitleEncoding:
+        //                            Width = 12 + content.Length* 2.2D;
+        //                            break;
 
-                                case DTEType.MultipleTitleEncoding:
-                                    Width = 12 + content.Length * 4.2D + (FontSize / 2);
-                                    break;
+        //                        case DTEType.MultipleTitleEncoding:
+        //                            Width = 12 + content.Length* 4.2D + (FontSize / 2);
+        //                            break;
 
-                                case DTEType.EndLine:
-                                    Width = 24;
-                                    break;
+        //                        case DTEType.EndLine:
+        //                            Width = 24;
+        //                            break;
 
-                                case DTEType.EndBlock:
-                                    Width = 34;
-                                    break;
+        //                        case DTEType.EndBlock:
+        //                            Width = 34;
+        //                            break;
 
-                                default:
-                                    Width = 12;
-                                    break;
-                            }
-                        }
-                        else
-                            goto case CharacterTableType.ASCII;
-                        break;
-                }
-            }
-            else
-                Text = "";
-        }
+        //                        default:
+        //                            Width = 12;
+        //                            break;
+        //                    }
+        //                }
+        //                else
+        //                    goto case CharacterTableType.ASCII;
+        //                break;
+        //        }
+        //    }
+        //    else
+        //        Text = "";
+        //}
 
         private void UpdateHexString()
         {
@@ -454,29 +458,33 @@ namespace WPFHexaEditor.Control
         /// </summary>
         internal void UpdateVisual()
         {
+            if(BackgroundLayer == null) {
+                return;
+            }
+
             if (IsFocus)
             {
-                Foreground = Brushes.White;
-                Background = Brushes.Black;
+                //Foreground = Brushes.White;
+                BackgroundLayer.Fill = Brushes.Black;
             }
             else if(IsSelected)
             {
-                FontWeight = _parent.FontWeight;
-                Foreground = _parent.ForegroundContrast;
+                //FontWeight = _parent.FontWeight;
+                //Foreground = _parent.ForegroundContrast;
 
                 if (FirstSelected)
-                    Background = _parent.SelectionFirstColor;
+                    BackgroundLayer.Fill = _parent.SelectionFirstColor;
                 else
-                    Background = _parent.SelectionSecondColor;
+                    BackgroundLayer.Fill = _parent.SelectionSecondColor;
 
                 return;
             }
             else if (IsHighLight)
             {
-                FontWeight = _parent.FontWeight;
-                Foreground = _parent.Foreground;
+                //FontWeight = _parent.FontWeight;
+                //Foreground = _parent.Foreground;
 
-                Background = _parent.HighLightColor;
+                BackgroundLayer.Fill = _parent.HighLightColor;
 
                 return;
             }
@@ -485,15 +493,11 @@ namespace WPFHexaEditor.Control
                 switch (Action)
                 {
                     case ByteAction.Modified:
-                        FontWeight = FontWeights.Bold; 
-                        Background = _parent.ByteModifiedColor; 
-                        Foreground = _parent.Foreground;
+                        BackgroundLayer.Fill = _parent.ByteModifiedColor; 
                         break;
 
                     case ByteAction.Deleted:
-                        FontWeight = FontWeights.Bold;
-                        Background = _parent.ByteDeletedColor;
-                        Foreground = _parent.Foreground;
+                        BackgroundLayer.Fill = _parent.ByteDeletedColor;
                         break;
                 }
 
@@ -501,31 +505,31 @@ namespace WPFHexaEditor.Control
             }
             else //TBL COLORING
             {
-                FontWeight = _parent.FontWeight;
-                Background = Brushes.Transparent;
-                Foreground = _parent.Foreground;
+                //FontWeight = _parent.FontWeight;
+                BackgroundLayer.Fill = Brushes.Transparent;
+                //Foreground = _parent.Foreground;
 
                 if (TypeOfCharacterTable == CharacterTableType.TBLFile)
-                    switch (DTE.TypeDTE(Text))
+                    switch (DTE.TypeDTE(ByteConverters.ByteToChar(Byte.Value).ToString()))
                     {
                         case DTEType.DualTitleEncoding:
-                            Foreground = _parent.TBL_DTEColor;
+                            //Foreground = _parent.TBL_DTEColor;
                             break;
 
                         case DTEType.MultipleTitleEncoding:
-                            Foreground = _parent.TBL_MTEColor;
+                            //Foreground = _parent.TBL_MTEColor;
                             break;
 
                         case DTEType.EndLine:
-                            Foreground = _parent.TBL_EndLineColor;
+                            //Foreground = _parent.TBL_EndLineColor;
                             break;
 
                         case DTEType.EndBlock:
-                            Foreground = _parent.TBL_EndBlockColor;
+                            //Foreground = _parent.TBL_EndBlockColor;
                             break;
 
                         default:
-                            Foreground = _parent.TBL_DefaultColor;
+                            //Foreground = _parent.TBL_DefaultColor;
                             break;
                     }
             }
@@ -655,26 +659,26 @@ namespace WPFHexaEditor.Control
                 {
                     if (Keyboard.Modifiers != ModifierKeys.Shift && e.Key != Key.RightShift && e.Key != Key.LeftShift)
                     {
-                        Text = KeyValidator.GetCharFromKey(e.Key).ToString();
+                        //Text = KeyValidator.GetCharFromKey(e.Key).ToString();
                         isok = true;
                     }
                     else if (Keyboard.Modifiers == ModifierKeys.Shift && e.Key != Key.RightShift && e.Key != Key.LeftShift)
                     {
                         isok = true;
-                        Text = KeyValidator.GetCharFromKey(e.Key).ToString().ToLower(); 
+                        //Text = KeyValidator.GetCharFromKey(e.Key).ToString().ToLower(); 
                     }
                 }
                 else
                 {
                     if (Keyboard.Modifiers != ModifierKeys.Shift && e.Key != Key.RightShift && e.Key != Key.LeftShift)
                     {
-                        Text = KeyValidator.GetCharFromKey(e.Key).ToString().ToLower(); 
+                        //Text = KeyValidator.GetCharFromKey(e.Key).ToString().ToLower(); 
                         isok = true;
                     }
                     else if (Keyboard.Modifiers == ModifierKeys.Shift && e.Key != Key.RightShift && e.Key != Key.LeftShift)
                     {
                         isok = true;
-                        Text = KeyValidator.GetCharFromKey(e.Key).ToString();
+                        //Text = KeyValidator.GetCharFromKey(e.Key).ToString();
                     }
                 }
 
@@ -683,7 +687,7 @@ namespace WPFHexaEditor.Control
                     if (MoveNext != null)
                     {
                         Action = ByteAction.Modified;
-                        Byte = ByteConverters.CharToByte(Text.ToString()[0]);
+                        //Byte = ByteConverters.CharToByte(Text.ToString()[0]);
 
                         MoveNext(this, new EventArgs());
                     }
@@ -697,7 +701,7 @@ namespace WPFHexaEditor.Control
                     Action != ByteAction.Deleted &&
                     Action != ByteAction.Added &&
                     !IsSelected && !IsHighLight && !IsFocus)
-                    Background = _parent.MouseOverColor; 
+                    BackgroundLayer.Fill = _parent.MouseOverColor; 
 
             if (e.LeftButton == MouseButtonState.Pressed)
                 MouseSelection?.Invoke(this, e);
@@ -710,7 +714,7 @@ namespace WPFHexaEditor.Control
                     Action != ByteAction.Deleted &&
                     Action != ByteAction.Added &&
                     !IsSelected && !IsHighLight && !IsFocus)
-                    Background = Brushes.Transparent;
+                    BackgroundLayer.Fill = Brushes.Transparent;
         }
 
         private void StringByteLabel_MouseDown(object sender, MouseButtonEventArgs e)

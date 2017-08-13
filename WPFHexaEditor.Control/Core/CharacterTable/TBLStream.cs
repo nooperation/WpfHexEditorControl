@@ -32,7 +32,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         #region Constructeurs
 
         /// <summary>
-        /// Constructeur permétant de chargé le fichier DTE
+        /// Constructeur permétant de charg?le fichier DTE
         /// </summary>
         /// <param name="FileName"></param>
         public TBLStream(string FileName)
@@ -50,7 +50,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         }
 
         /// <summary>
-        /// Constructeur permétant de chargé le fichier DTE
+        /// Constructeur permétant de charg?le fichier DTE
         /// </summary>
         /// <param name="FileName"></param>
         public TBLStream()
@@ -88,7 +88,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         #region Méthodes
 
         /// <summary>
-        /// Trouver une entré dans la table de jeu qui corestpond a la valeur hexa
+        /// Trouver une entr?dans la table de jeu qui corestpond a la valeur hexa
         /// </summary>
         /// <param name="hex">Valeur hexa a rechercher dans la TBL</param>
         /// <param name="showSpecialValue">Afficher les valeurs de fin de block et de ligne</param>
@@ -123,11 +123,11 @@ namespace WPFHexaEditor.Core.CharacterTable
         }
 
         /// <summary>
-        /// Trouver une entré dans la table de jeu qui corestpond a la valeur hexa
+        /// Trouver une entr?dans la table de jeu qui corestpond a la valeur hexa
         /// </summary>
         /// <param name="hex">Valeur hexa a rechercher dans la TBL</param>
         /// <param name="showSpecialValue">Afficher les valeurs de fin de block et de ligne</param>
-        /// <returns>Retourne le DTE/MTE trouvé. null si rien trouvé</returns>
+        /// <returns>Retourne le DTE/MTE trouv? null si rien trouv?/returns>
         public DTE GetDTE(string hex)
         {
             foreach (DTE dte in _DTEList)
@@ -145,7 +145,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         }
 
         /// <summary>
-        /// Trouver une entré dans la table de jeu qui corestpond a la valeur hexa
+        /// Trouver une entr?dans la table de jeu qui corestpond a la valeur hexa
         /// </summary>
         /// <param name="hex">Valeur hexa a rechercher dans la TBL</param>
         /// <param name="showSpecialValue">Afficher les valeurs de fin de block et de ligne</param>
@@ -164,7 +164,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         }
 
         /// <summary>
-        /// Trouver une entré dans la table de jeu qui corestpond a la valeur hexa
+        /// Trouver une entr?dans la table de jeu qui corestpond a la valeur hexa
         /// </summary>
         /// <param name="hex">Valeur hexa a rechercher dans la TBL</param>
         /// <param name="showSpecialValue">Afficher les valeurs de fin de block et de ligne</param>
@@ -212,7 +212,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         }
 
         /// <summary>
-        /// Chargé le fichier dans l'objet
+        /// Charg?le fichier dans l'objet
         /// </summary>
         /// <returns>Retoune vrai si le fichier est bien charger</returns>
         private bool Load()
@@ -328,7 +328,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         /// <summary>
         /// Enregistrer dans le fichier
         /// </summary>
-        /// <returns>Retourne vrai si le fichier à été bien enregistré</returns>
+        /// <returns>Retourne vrai si le fichier ?ét?bien enregistr?/returns>
         public bool Save()
         {
             //ouverture du fichier
@@ -402,7 +402,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         /// Recherche un élément dans la TBL
         /// </summary>
         /// <param name="Entry">Entrée sous forme hexadécimal (XX)</param>
-        /// <param name="Value">Valeur de l'entré</param>
+        /// <param name="Value">Valeur de l'entr?/param>
         /// <returns>Retourne la position ou ce trouve cette élément dans le tableau</returns>
         public int Find(string Entry, string Value)
         {
@@ -414,7 +414,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         /// Recherche un élément dans la TBL
         /// </summary>
         /// <param name="Entry">Entrée sous forme hexadécimal (XX)</param>
-        /// <param name="Value">Valeur de l'entré</param>
+        /// <param name="Value">Valeur de l'entr?/param>
         /// <param name="Type">Type de DTE</param>
         /// <returns>Retourne la position ou ce trouve cette élément dans le tableau</returns>
         public int Find(string Entry, string Value, DTEType Type)
@@ -464,7 +464,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         public List<BookMark> BookMarks { get; set; } = new List<BookMark>();
 
         /// <summary>
-        /// Obtenir le total d'entré DTE dans la Table
+        /// Obtenir le total d'entr?DTE dans la Table
         /// </summary>
         public int TotalDTE
         {
@@ -475,7 +475,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         }
 
         /// <summary>
-        /// Obtenir le total d'entré MTE dans la Table
+        /// Obtenir le total d'entr?MTE dans la Table
         /// </summary>
         public int TotalMTE
         {
@@ -486,7 +486,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         }
 
         /// <summary>
-        /// Obtenir le total d'entré ASCII dans la Table
+        /// Obtenir le total d'entr?ASCII dans la Table
         /// </summary>
         public int TotalASCII
         {
@@ -497,7 +497,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         }
 
         /// <summary>
-        /// Obtenir le total d'entré Invalide dans la Table
+        /// Obtenir le total d'entr?Invalide dans la Table
         /// </summary>
         public int TotalInvalid
         {
@@ -508,7 +508,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         }
 
         /// <summary>
-        /// Obtenir le total d'entré Japonais dans la Table
+        /// Obtenir le total d'entr?Japonais dans la Table
         /// </summary>
         public int TotalJaponais
         {
@@ -519,7 +519,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         }
 
         /// <summary>
-        /// Obtenir le total d'entré Fin de ligne dans la Table
+        /// Obtenir le total d'entr?Fin de ligne dans la Table
         /// </summary>
         public int TotalEndLine
         {
@@ -530,7 +530,7 @@ namespace WPFHexaEditor.Core.CharacterTable
         }
 
         /// <summary>
-        /// Obtenir le total d'entré Fin de Block dans la Table
+        /// Obtenir le total d'entr?Fin de Block dans la Table
         /// </summary>
         public int TotalEndBlock
         {
