@@ -47,11 +47,11 @@ namespace WPFHexaEditor.Control
         //It indicates the "margins" between hex headers and char in hextextlayer;
         private const string HexIndent = "  ";
         //It indicates the width of every hexbytecontrol,it was measured by live property tree(HexHeader).
-        public static double HexCharWidth => 28.92;
+        public double HexCharWidth => 28.92;
         public static double HexLineHeight => 22.0;
 
         //It indicates the width of every stringbytecontrol,it was measured by live property tree(HexHeader).
-        public static double StringCharWidth = 7.2;
+        public double StringCharWidth => 7.2;
         
         
         public static readonly FontFamily EqualWidthFontFamily = new FontFamily("Lucida Console");
@@ -1784,13 +1784,14 @@ namespace WPFHexaEditor.Control
                 UpdateHexHeader();
 
                 //Load file with ASCII character table;
-                var previousTable = TypeOfCharacterTable;
-                TypeOfCharacterTable = CharacterTableType.ASCII;
+                //var previousTable = TypeOfCharacterTable;
+                //TypeOfCharacterTable = CharacterTableType.ASCII;
 
                 RefreshView(true);
 
                 //Replace previous character table
-                TypeOfCharacterTable = previousTable;
+
+                //TypeOfCharacterTable = previousTable;
 
                 UnSelectAll();
 
@@ -2324,22 +2325,22 @@ namespace WPFHexaEditor.Control
         private void UpdateDataInlines() {
             HexTextLayer.Inlines.Clear();
             StringTextLayer.Inlines.Clear();
-            
+
             var ctrlIndex = 0;
-            
+
             var hexRunList = new List<Run>();
             var stringRunList = new List<Run>();
             KeyValuePair<Run, Color>? lastHexRunPair = null;
             KeyValuePair<Run, Color>? lastStringRunPair = null;
-            
-            Action<string,string, Color> appendWithLastRun = (strHex, strData , color) => {
-                if(lastHexRunPair == null || lastHexRunPair.Value.Value != color) {
 
-                    lastHexRunPair = new KeyValuePair<Run , Color> ( 
+            Action<string, string, Color> appendWithLastRun = (strHex, strData, color) => {
+                if (lastHexRunPair == null || lastHexRunPair.Value.Value != color) {
+
+                    lastHexRunPair = new KeyValuePair<Run, Color>(
                         new Run(strHex) {
                             Foreground = new SolidColorBrush(color)
-                        } ,
-                        color);   
+                        },
+                        color);
 
                     hexRunList.Add(lastHexRunPair.Value.Key);
 
@@ -2351,35 +2352,63 @@ namespace WPFHexaEditor.Control
 
                     stringRunList.Add(lastStringRunPair.Value.Key);
                 }
-                else if(lastHexRunPair.Value.Value == color) {
+                else if (lastHexRunPair.Value.Value == color) {
                     lastHexRunPair.Value.Key.Text += strHex;
                     lastStringRunPair.Value.Key.Text += strData;
                 }
             };
 
-            TraverseDataControls(hexCtrl => {
-                if (hexCtrl.Byte != null) {
-                    var hexStr = new string(ByteConverters.ByteToHexCharArray(hexCtrl.Byte.Value)) + HexIndent;
-                    var dataStr = ByteConverters.ByteToChar(hexCtrl.Byte.Value).ToString();
-                    
-                    if (hexCtrl.IsFocus) {
-                        appendWithLastRun(hexStr , dataStr , Colors.White);
+            TraverseStringControls(sbCtrl => {
+                if (sbCtrl.Byte != null) {
+                    var hexStr = new string(ByteConverters.ByteToHexCharArray(sbCtrl.Byte.Value)) + HexIndent;
+
+                    var stringStr = string.Empty;
+                    switch (TypeOfCharacterTable) {
+                        case CharacterTableType.ASCII:
+                            stringStr = ByteConverters.ByteToChar(sbCtrl.Byte.Value).ToString();
+                            break;
+                        case CharacterTableType.TBLFile:
+                            ReadOnlyMode = !_TBLCharacterTable.AllowEdit;
+
+                            if (_TBLCharacterTable != null) {
+                                stringStr = "#";
+
+                                if (TBL_ShowMTE)
+                                    if (sbCtrl.ByteNext.HasValue) {
+                                        string MTE = (ByteConverters.ByteToHex(sbCtrl.Byte.Value) + ByteConverters.ByteToHex(sbCtrl.ByteNext.Value)).ToUpper();
+                                        stringStr = _TBLCharacterTable.FindTBLMatch(MTE, true);
+                                    }
+
+                                if (stringStr == "#")
+                                    stringStr = _TBLCharacterTable.FindTBLMatch(ByteConverters.ByteToHex(sbCtrl.Byte.Value).ToUpper().ToUpper(), true);
+                                
+                            }
+
+                            else
+                                goto case CharacterTableType.ASCII;
+                            break;
                     }
-                    else if (hexCtrl.IsSelected) {
-                        appendWithLastRun(hexStr , dataStr , Colors.White);
+
+
+                    if (sbCtrl.IsFocus) {
+                        appendWithLastRun(hexStr, stringStr, Colors.White);
+                    }
+                    else if (sbCtrl.IsSelected) {
+                        appendWithLastRun(hexStr, stringStr, Colors.White);
                     }
                     else {
-                        appendWithLastRun(hexStr, dataStr , Colors.Black);
+                        appendWithLastRun(hexStr, stringStr, Colors.Black);
                     }
                 }
                 else {
-                    appendWithLastRun("  " + HexIndent ," ", Colors.Black);
+                    appendWithLastRun("  " + HexIndent, " ", Colors.Black);
                 }
                 if ((ctrlIndex - 1) % BytePerLine == BytePerLine - 2) {
                     appendWithLastRun(Environment.NewLine, Environment.NewLine, Colors.Black);
                 }
                 ctrlIndex++;
             });
+
 
             //var hexRun = new Run(sbHex.ToString());
             HexTextLayer.Inlines.AddRange(hexRunList);

@@ -6,7 +6,7 @@
 namespace WPFHexaEditor.Core.CharacterTable
 {
     /// <summary>
-    /// Type de DTE qui sera utilisé dans les classe de DTE
+    /// Type de DTE qui sera utilis?dans les classe de DTE
     ///
     /// Derek Tremblay 2003-2017
     /// </summary>

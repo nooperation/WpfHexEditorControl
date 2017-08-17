@@ -61,6 +61,7 @@ namespace WPFHexaEditor.Control
         public event EventHandler CTRLCKey;
 
         public event EventHandler CTRLAKey;
+        
 
         /// <summary>
         /// Load ressources dictionnary
@@ -72,6 +73,7 @@ namespace WPFHexaEditor.Control
             var ttRes = new ResourceDictionary();
             ttRes.Source = ttLocaltor;
             this.Resources.MergedDictionaries.Add(ttRes);
+            
         }
 
         /// <summary>
@@ -92,9 +94,8 @@ namespace WPFHexaEditor.Control
             txtBinding.Source = this.FindResource("ByteToolTip");
             txtBinding.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
             txtBinding.Mode = BindingMode.OneWay;
-            this.SetBinding(TextBlock.ToolTipProperty, txtBinding);
-
-
+            this.SetBinding(ToolTipProperty, txtBinding);
+            
             MouseEnter += UserControl_MouseEnter;
             MouseLeave += UserControl_MouseLeave;
             KeyDown += UserControl_KeyDown;
@@ -102,6 +103,7 @@ namespace WPFHexaEditor.Control
             
             _parent = parent;
             BackgroundLayer = backgroundLayer;
+            
         }
 
         #region DependencyProperty
@@ -154,8 +156,9 @@ namespace WPFHexaEditor.Control
                     if (ctrl.Action != ByteAction.Nothing && ctrl.InternalChange == false)
                         ctrl.StringByteModified?.Invoke(ctrl, new EventArgs());
 
+                    ctrl.UpdateWidth();
                     //ctrl.UpdateLabelFromByte();
-                    ctrl.UpdateHexString();
+                    //ctrl.UpdateHexString();
 
                     ctrl.UpdateVisual();
                 }
@@ -235,15 +238,24 @@ namespace WPFHexaEditor.Control
         /// <summary>
         /// Get the hex string {00} representation of this byte
         /// </summary>
-        public string HexString
-        {
-            get { return (string)GetValue(HexStringProperty); }
-            internal set { SetValue(HexStringProperty, value); }
+        //public string HexString
+        //{
+        //    get { return (string)GetValue(HexStringProperty); }
+        //    internal set { SetValue(HexStringProperty, value); }
+        //}
+
+        public string HexString {
+            get {
+                if(Byte != null) {
+                    return ByteConverters.ByteToHex(Byte.Value);
+                }
+                return string.Empty;
+            }
         }
 
-        public static readonly DependencyProperty HexStringProperty =
-            DependencyProperty.Register("HexString", typeof(string), typeof(StringByteControl),
-                new FrameworkPropertyMetadata(string.Empty));
+        //public static readonly DependencyProperty HexStringProperty =
+        //    DependencyProperty.Register("HexString", typeof(string), typeof(StringByteControl),
+        //        new FrameworkPropertyMetadata(string.Empty));
 
         /// <summary>
         /// Get of Set if control as marked as highlighted
@@ -360,7 +372,7 @@ namespace WPFHexaEditor.Control
             StringByteControl ctrl = d as StringByteControl;
 
             //ctrl.UpdateLabelFromByte();
-            ctrl.UpdateHexString();
+            //ctrl.UpdateHexString();
         }
 
         public TBLStream TBLCharacterTable
@@ -377,6 +389,72 @@ namespace WPFHexaEditor.Control
 
         #endregion Characters tables
 
+        private void UpdateWidth() {
+            
+            switch (TypeOfCharacterTable) {
+                case CharacterTableType.ASCII:
+                    Width = _parent.HexCharWidth;
+                    break;
+                case CharacterTableType.TBLFile:
+                    var stringStr = string.Empty;
+                    switch (TypeOfCharacterTable) {
+                        case CharacterTableType.ASCII:
+                            stringStr = ByteConverters.ByteToChar(Byte.Value).ToString();
+                            break;
+                        case CharacterTableType.TBLFile:
+                            ReadOnlyMode = !_TBLCharacterTable.AllowEdit;
+
+                            if (_TBLCharacterTable != null) {
+                                stringStr = "#";
+
+                                if (TBL_ShowMTE)
+                                    if (ByteNext.HasValue) {
+                                        string MTE = (ByteConverters.ByteToHex(Byte.Value) + ByteConverters.ByteToHex(ByteNext.Value)).ToUpper();
+                                        stringStr = _TBLCharacterTable.FindTBLMatch(MTE, true);
+                                    }
+
+                                if (stringStr == "#")
+                                    stringStr = _TBLCharacterTable.FindTBLMatch(ByteConverters.ByteToHex(Byte.Value).ToUpper().ToUpper(), true);
+
+                                var newWidth = _parent.StringCharWidth * stringStr.Length;
+                                if (Width != newWidth) {
+                                    Width = newWidth;
+                                    BackgroundLayer.Width = newWidth;
+                                }
+                            }
+
+                            else
+                                goto case CharacterTableType.ASCII;
+                            break;
+                    }
+                    
+                    break;
+                    ////TODO: CHECK FOR AUTO ADAPT TO CONTENT AND FONTSIZE
+                    //switch (DTE.TypeDTE(stringStr)) {
+                    //    case DTEType.DualTitleEncoding:
+                            
+
+                    //    case DTEType.MultipleTitleEncoding:
+                    //        Width = 12 + stringStr.Length * 4.2D + (FontSize / 2);
+                    //        break;
+
+                    //    case DTEType.EndLine:
+                    //        Width = 24;
+                    //        break;
+
+                    //    case DTEType.EndBlock:
+                    //        Width = 34;
+                    //        break;
+
+                    //    default:
+                    //        Width = 12;
+                    //        break;
+                    //}
+                    //break;
+            }
+            
+
+        }
 
         //Cuz ByteControls don't show character now,UpdateLabel Method are removed temporarily now;
         /// <summary>
@@ -445,13 +523,13 @@ namespace WPFHexaEditor.Control
         //        Text = "";
         //}
 
-        private void UpdateHexString()
-        {
-            if (Byte != null)
-                HexString = $"0x{ByteConverters.ByteToHex(Byte.Value)}";
-            else
-                HexString = string.Empty;
-        }
+        //private void UpdateHexString()
+        //{
+        //    if (Byte != null)
+        //        HexString = $"0x{ByteConverters.ByteToHex(Byte.Value)}";
+        //    else
+        //        HexString = string.Empty;
+        //}
 
         /// <summary>
         /// Update Background,foreground and font property
