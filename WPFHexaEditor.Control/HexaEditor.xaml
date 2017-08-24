@@ -9,6 +9,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:WPFHexaEditor.Control"
+             xmlns:common="clr-namespace:WPFHexaEditor.Resources"
              MouseWheel="UserControl_MouseWheel" 
              mc:Ignorable="d"
              BorderBrush="#FF443E3E"
@@ -150,7 +151,7 @@
             <!--This layer shows background only(like modified,selected and bla bla...)-->
             <Canvas x:Name="HexDataBackgroundLayer"/>
             <!--This layer shows the text of hexbyte-->
-            <TextBlock x:Name="HexTextLayer"  FontFamily="Lucida Console" LineHeight="{x:Static local:HexaEditor.HexLineHeight}"/>
+            <TextBlock x:Name="HexTextLayer"  FontFamily="Lucida Console" LineHeight="{x:Static common:Common.HexLineHeight}"/>
             <!--This layer is for accepting the userinput(mouse and keyboard)-->
             <StackPanel x:Name="HexDataStackPanel" />
         </Grid>

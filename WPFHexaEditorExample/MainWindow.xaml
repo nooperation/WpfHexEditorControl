@@ -14,7 +14,7 @@
         mc:Ignorable="d"
         Closing="Window_Closing"
         Background="WhiteSmoke"
-        Title="WPF Hexa Editor control sample" Height="530" Width="900">
+        Title="WPF Hexa Editor control sample" Height="530" Width="900" >
     <Grid>
         <DockPanel>
             <Menu DockPanel.Dock="Top">

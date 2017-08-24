@@ -62,6 +62,7 @@
     <Compile Include="Core\Interface\IByteControl.cs" />
     <Compile Include="Core\MethodExtention\VisualHelper.cs" />
     <Compile Include="HexByteControl.cs" />
+    <Compile Include="Resources\Common.cs" />
     <Compile Include="StringByteControl.cs" />
     <Page Include="Resources\Dictionary\MiscelanousDictionary.xaml">
       <SubType>Designer</SubType>

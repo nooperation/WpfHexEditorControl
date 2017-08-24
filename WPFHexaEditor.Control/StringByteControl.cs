@@ -15,6 +15,7 @@ using WPFHexaEditor.Core;
 using WPFHexaEditor.Core.Bytes;
 using WPFHexaEditor.Core.CharacterTable;
 using WPFHexaEditor.Core.Interface;
+using static WPFHexaEditor.Resources.Common;
 
 namespace WPFHexaEditor.Control
 {
@@ -22,7 +23,6 @@ namespace WPFHexaEditor.Control
     {
         //private bool _isByteModified = false;
         private bool _readOnlyMode;
-        private HexaEditor _parent;
 
         private TBLStream _TBLCharacterTable = null;
 
@@ -80,7 +80,7 @@ namespace WPFHexaEditor.Control
         /// Default contructor
         /// </summary>
         /// <param name="parent"></param>
-        public StringByteControl(HexaEditor parent,Shape backgroundLayer = null)
+        public StringByteControl(Shape backgroundLayer = null)
         {
             LoadDict("/WPFHexaEditor;component/Resources/Dictionary/ToolTipDictionary.xaml");
 
@@ -101,7 +101,6 @@ namespace WPFHexaEditor.Control
             KeyDown += UserControl_KeyDown;
             MouseDown += StringByteLabel_MouseDown;
             
-            _parent = parent;
             BackgroundLayer = backgroundLayer;
             
         }
@@ -393,7 +392,7 @@ namespace WPFHexaEditor.Control
             
             switch (TypeOfCharacterTable) {
                 case CharacterTableType.ASCII:
-                    Width = _parent.HexCharWidth;
+                    Width = HexCharWidth;
                     break;
                 case CharacterTableType.TBLFile:
                     var stringStr = string.Empty;
@@ -416,7 +415,7 @@ namespace WPFHexaEditor.Control
                                 if (stringStr == "#")
                                     stringStr = _TBLCharacterTable.FindTBLMatch(ByteConverters.ByteToHex(Byte.Value).ToUpper().ToUpper(), true);
 
-                                var newWidth = _parent.StringCharWidth * stringStr.Length;
+                                var newWidth = StringCharWidth * stringStr.Length;
                                 if (Width != newWidth) {
                                     Width = newWidth;
                                     BackgroundLayer.Width = newWidth;
@@ -547,15 +546,15 @@ namespace WPFHexaEditor.Control
             else if(IsSelected)
             {
                 if (FirstSelected)
-                    BackgroundLayer.Fill = _parent.SelectionFirstColor;
+                    BackgroundLayer.Fill = FirstSelectedColor;
                 else
-                    BackgroundLayer.Fill = _parent.SelectionSecondColor;
+                    BackgroundLayer.Fill = SecondSelectedColor;
 
                 return;
             }
             else if (IsHighLight)
             {
-                BackgroundLayer.Fill = _parent.HighLightColor;
+                BackgroundLayer.Fill = HighLightColor;
 
                 return;
             }
@@ -564,11 +563,11 @@ namespace WPFHexaEditor.Control
                 switch (Action)
                 {
                     case ByteAction.Modified:
-                        BackgroundLayer.Fill = _parent.ByteModifiedColor; 
+                        BackgroundLayer.Fill = ByteModifiedColor; 
                         break;
 
                     case ByteAction.Deleted:
-                        BackgroundLayer.Fill = _parent.ByteDeletedColor;
+                        BackgroundLayer.Fill = ByteDeletedColor;
                         break;
                 }
 
@@ -770,7 +769,7 @@ namespace WPFHexaEditor.Control
                     Action != ByteAction.Deleted &&
                     Action != ByteAction.Added &&
                     !IsSelected && !IsHighLight && !IsFocus)
-                    BackgroundLayer.Fill = _parent.MouseOverColor; 
+                    BackgroundLayer.Fill = MouseOverColor; 
 
             if (e.LeftButton == MouseButtonState.Pressed)
                 MouseSelection?.Invoke(this, e);

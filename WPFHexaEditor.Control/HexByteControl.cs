@@ -13,26 +13,19 @@ using System.Windows.Shapes;
 using WPFHexaEditor.Core;
 using WPFHexaEditor.Core.Bytes;
 using WPFHexaEditor.Core.Interface;
+using static WPFHexaEditor.Resources.Common;
 
 namespace WPFHexaEditor.Control
 {
-
-    //[TemplatePart(Name = FirstHexCharName, Type = typeof(TextBlock))]
-    //[TemplatePart(Name = SecondHexCharName, Type = typeof(TextBlock))]
     public partial class HexByteControl : Border, IByteControl
     {
-        //public const string FirstHexCharName = "FirstHexChar";
-        //public const string SecondHexCharName = "SecondHexChar";
-
-        //internal TextBlock FirstHexChar;
-        //internal TextBlock SecondHexChar;
         static HexByteControl()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(HexByteControl), new FrameworkPropertyMetadata(typeof(HexByteControl)));
         }
         
         
-        public HexByteControl(HexaEditor parent,Shape backgroundLayer = null)
+        public HexByteControl(Shape backgroundLayer = null)
         {
             DataContext = this;
             KeyDown += UserControl_KeyDown;
@@ -41,7 +34,6 @@ namespace WPFHexaEditor.Control
             MouseLeave += UserControl_MouseLeave;
             Focusable = true;
             
-            _parent = parent;
             this.BackgroundLayer = backgroundLayer;
         }
         
@@ -51,7 +43,6 @@ namespace WPFHexaEditor.Control
 
         private bool _readOnlyMode = false;
         private KeyDownLabel _keyDownLabel = KeyDownLabel.FirstChar;
-        private HexaEditor _parent;
 
         public event EventHandler ByteModified;
         public event EventHandler MouseSelection;
@@ -289,24 +280,24 @@ namespace WPFHexaEditor.Control
             }
             else if (IsSelected) {
                 if (FirstSelected)
-                    BackgroundLayer.Fill = _parent.SelectionFirstColor;
+                    BackgroundLayer.Fill = FirstSelectedColor;
                 else
-                    BackgroundLayer.Fill = _parent.SelectionSecondColor;
+                    BackgroundLayer.Fill = SecondSelectedColor;
             }
             else if (IsHighLight) {
-                BackgroundLayer.Fill = _parent.HighLightColor;
+                BackgroundLayer.Fill = HighLightColor;
             }
             else if (Action != ByteAction.Nothing) {
                 switch (Action) {
                     case ByteAction.Modified:
                         //FontWeight = BoldFontWeight;
-                        BackgroundLayer.Fill = _parent.ByteModifiedColor;
+                        BackgroundLayer.Fill = ByteModifiedColor;
                         //FirstHexChar.Foreground = Brushes.Black;
                         //SecondHexChar.Foreground = Brushes.Black;
                         break;
                     case ByteAction.Deleted:
                         //FontWeight = BoldFontWeight;
-                        BackgroundLayer.Fill = _parent.ByteDeletedColor;
+                        BackgroundLayer.Fill = ByteDeletedColor;
                         //FirstHexChar.Foreground = Brushes.Black;
                         //SecondHexChar.Foreground = Brushes.Black;
                         break;
@@ -491,7 +482,7 @@ namespace WPFHexaEditor.Control
                     Action != ByteAction.Deleted &&
                     Action != ByteAction.Added &&
                     !IsSelected && !IsHighLight && !IsFocus)
-                     BackgroundLayer.Fill = _parent.MouseOverColor;
+                     BackgroundLayer.Fill = MouseOverColor;
 
             if (e.LeftButton == MouseButtonState.Pressed)
                 MouseSelection?.Invoke(this, e);

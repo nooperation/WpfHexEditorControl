@@ -22,7 +22,7 @@ using WPFHexaEditor.Core.Bytes;
 using WPFHexaEditor.Core.CharacterTable;
 using WPFHexaEditor.Core.Interface;
 using WPFHexaEditor.Core.MethodExtention;
-
+using static WPFHexaEditor.Resources.Common;
 namespace WPFHexaEditor.Control
 {
     /// <summary>
@@ -42,19 +42,7 @@ namespace WPFHexaEditor.Control
         private bool _mouseOnBottom = false;
         private long _bottomEnterTimes = 0;
         private bool _mouseOnTop = false;
-        private long _topEnterTimes = 0;
-
-        //It indicates the "margins" between hex headers and char in hextextlayer;
-        private const string HexIndent = "  ";
-        //It indicates the width of every hexbytecontrol,it was measured by live property tree(HexHeader).
-        public double HexCharWidth => 28.92;
-        public static double HexLineHeight => 22.0;
-
-        //It indicates the width of every stringbytecontrol,it was measured by live property tree(HexHeader).
-        public double StringCharWidth => 7.2;
-        
-        
-        public static readonly FontFamily EqualWidthFontFamily = new FontFamily("Lucida Console");
+        private long _topEnterTimes = 0;       
         
         #region Events
         /// <summary>
@@ -116,10 +104,22 @@ namespace WPFHexaEditor.Control
             TypeOfCharacterTable = CharacterTableType.TBLFile;
             LoadDefaultTBL(DefaultCharacterTableType.ASCII);
 
+            InitFont();
+
             //Refresh view
             RefreshView(true);
-
+            
             DataContext = this;
+        }
+
+        private void InitFont() {
+            StringTextLayer.FontSize = ByteControlFontSize;
+            StringTextLayer.FontFamily = EqualWidthFontFamily;
+            StringTextLayer.LineHeight = HexLineHeight;
+
+            HexTextLayer.FontSize = ByteControlFontSize;
+            HexTextLayer.FontFamily = EqualWidthFontFamily;
+            HexTextLayer.LineHeight = HexLineHeight;
         }
 
         #region Build-in CTRL key property
@@ -2096,7 +2096,7 @@ namespace WPFHexaEditor.Control
                     backRect.SetValue(Canvas.TopProperty, lineIndex * HexLineHeight);
                     StringDataBackgroundLayer.Children.Add(backRect);
 
-                    StringByteControl sbCtrl = new StringByteControl(this,backRect);
+                    StringByteControl sbCtrl = new StringByteControl(backRect);
 
                     sbCtrl.StringByteModified += Control_ByteModified;
                     sbCtrl.ReadOnlyMode = ReadOnlyMode;
@@ -2144,7 +2144,7 @@ namespace WPFHexaEditor.Control
                     backRect.SetValue(Canvas.LeftProperty, i * HexCharWidth);
                     backRect.SetValue(Canvas.TopProperty, lineIndex * HexLineHeight);
                     HexDataBackgroundLayer.Children.Add(backRect);
-                    HexByteControl byteControl = new HexByteControl(this,backRect);
+                    HexByteControl byteControl = new HexByteControl(backRect);
 
                     byteControl.ReadOnlyMode = ReadOnlyMode;
                     byteControl.MouseSelection += Control_MouseSelection;
@@ -2360,7 +2360,7 @@ namespace WPFHexaEditor.Control
 
             TraverseStringControls(sbCtrl => {
                 if (sbCtrl.Byte != null) {
-                    var hexStr = new string(ByteConverters.ByteToHexCharArray(sbCtrl.Byte.Value)) + HexIndent;
+                    var hexStr = HexIndent + new string(ByteConverters.ByteToHexCharArray(sbCtrl.Byte.Value)) + HexIndent;
 
                     var stringStr = string.Empty;
                     switch (TypeOfCharacterTable) {
@@ -2393,15 +2393,15 @@ namespace WPFHexaEditor.Control
                     if (sbCtrl.IsFocus) {
                         appendWithLastRun(hexStr, stringStr, Colors.White);
                     }
-                    else if (sbCtrl.IsSelected) {
-                        appendWithLastRun(hexStr, stringStr, Colors.White);
-                    }
+                    //else if (sbCtrl.IsSelected) {
+                    //    appendWithLastRun(hexStr, stringStr, Colors.White);
+                    //}
                     else {
                         appendWithLastRun(hexStr, stringStr, Colors.Black);
                     }
                 }
                 else {
-                    appendWithLastRun("  " + HexIndent, " ", Colors.Black);
+                    appendWithLastRun($"{HexIndent}\"  \"{HexIndent}", " ", Colors.Black);
                 }
                 if ((ctrlIndex - 1) % BytePerLine == BytePerLine - 2) {
                     appendWithLastRun(Environment.NewLine, Environment.NewLine, Colors.Black);
@@ -2506,7 +2506,8 @@ namespace WPFHexaEditor.Control
                     LineInfoLabel.Height = _lineInfoHeight;
                     LineInfoLabel.Foreground = ForegroundOffSetHeaderColor;
                     LineInfoLabel.TextAlignment = TextAlignment.Center;
-                    LineInfoLabel.Text = ByteConverters.ByteToHex((byte)i) + HexIndent;
+                    LineInfoLabel.FontSize = ByteControlFontSize;
+                    LineInfoLabel.Text = HexIndent + ByteConverters.ByteToHex((byte)i) + HexIndent;
                     LineInfoLabel.ToolTip = $"Column : {i.ToString()}";
                     LineInfoLabel.FontFamily = EqualWidthFontFamily;
                     HexHeaderStackPanel.Children.Add(LineInfoLabel);
@@ -2533,6 +2534,7 @@ namespace WPFHexaEditor.Control
                     LineInfoLabel.Height = _lineInfoHeight;
                     LineInfoLabel.Padding = new Thickness(0, 0, 10, 0);
                     LineInfoLabel.Foreground = ForegroundOffSetHeaderColor;
+                    LineInfoLabel.FontFamily = EqualWidthFontFamily;
                     LineInfoLabel.MouseDown += LineInfoLabel_MouseDown;
                     LineInfoLabel.MouseMove += LineInfoLabel_MouseMove;
                     LineInfoLabel.HorizontalAlignment = HorizontalAlignment.Left;
