@@ -65,8 +65,6 @@ namespace WpfHexaEditor
             //Default properties
             DataContext = this;
             Focusable = true;
-            //TextAlignment = TextAlignment.Left;
-            //Padding = new Thickness(2, 0, 0, 0);
 
             #region Binding tooltip
 
@@ -88,15 +86,6 @@ namespace WpfHexaEditor
             SetBinding(ToolTipProperty, txtBinding);
 
             #endregion
-
-            //Event
-            //KeyDown += UserControl_KeyDown;
-            //MouseDown += HexChar_MouseDown;
-            MouseEnter += UserControl_MouseEnter;
-            //MouseLeave += UserControl_MouseLeave;
-            //ToolTipOpening += UserControl_ToolTipOpening;
-            //GotFocus += UserControl_GotFocus;
-            //LostFocus += UserControl_LostFocus;
 
             //Update width
             UpdateDataVisualWidth();
@@ -128,7 +117,7 @@ namespace WpfHexaEditor
         /// <summary>
         /// Used for selection coloring
         /// </summary>
-        public bool FirstSelected { get; set; } = false;
+        public bool FirstSelected { get; set; }
 
         /// <summary>
         /// Byte used for this instance
@@ -157,7 +146,7 @@ namespace WpfHexaEditor
         /// <summary>
         /// Get or set if control as in read only mode
         /// </summary>
-        public bool ReadOnlyMode { get; set; } = false;
+        public bool ReadOnlyMode { get; set; }
 
         /// <summary>
         /// Get or Set if control as selected
@@ -194,71 +183,59 @@ namespace WpfHexaEditor
 
         #endregion properties
 
-        #region Base properties
+        #region Private base properties
 
-        public static readonly DependencyProperty ForegroundProperty =
+        /// <summary>
+        /// Definie the foreground
+        /// </summary>
+        private static readonly DependencyProperty ForegroundProperty =
             TextElement.ForegroundProperty.AddOwner(
                 typeof(HexByteElement));
 
-        public Brush Foreground
+        private Brush Foreground
         {
             get => (Brush) GetValue(ForegroundProperty);
             set => SetValue(ForegroundProperty, value);
         }
 
-        /// <summary>
-        /// DependencyProperty for <see cref="Background" /> property.
-        /// </summary>
-        //[CommonDependencyProperty]
-        public static readonly DependencyProperty BackgroundProperty =
-            TextElement.BackgroundProperty.AddOwner(
-                typeof(HexByteElement),
-                new FrameworkPropertyMetadata(
-                    null,
-                    FrameworkPropertyMetadataOptions.AffectsRender, BackgroundProperty_Changed));
-
-        private static void BackgroundProperty_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is HexByteElement ctrl)
-                ctrl.IsEnabled = true;
-        }
+        private static readonly DependencyProperty BackgroundProperty =
+            TextElement.BackgroundProperty.AddOwner(typeof(HexByteElement),
+                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
 
         /// <summary>
-        /// The Background property defines the brush used to fill the content area.
+        /// Defines the background
         /// </summary>
-        public Brush Background
+        private Brush Background
         {
             get => (Brush)GetValue(BackgroundProperty);
             set => SetValue(BackgroundProperty, value);
         }
 
-        /// <summary>
-        /// DependencyProperty for <see cref="Text" /> property.
-        /// </summary>
-        public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register(
-                "Text",
-                typeof(string),
-                typeof(HexByteElement),
-                new FrameworkPropertyMetadata(
-                    string.Empty,
-                    FrameworkPropertyMetadataOptions.AffectsMeasure |
-                    FrameworkPropertyMetadataOptions.AffectsRender
-                    ));
+        private static readonly DependencyProperty TextProperty =
+            DependencyProperty.Register(nameof(Text), typeof(string), typeof(HexByteElement),
+                new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender));
 
         /// <summary>
-        /// The Text property defines the content (text) to be displayed.
+        /// Text to be displayed representation of Byte
         /// </summary>
-        [Localizability(LocalizationCategory.Text)]
-        public string Text
+        private string Text
         {
-            get { return (string)GetValue(TextProperty); }
-            set { SetValue(TextProperty, value); }
+            get => (string)GetValue(TextProperty);
+            set => SetValue(TextProperty, value);
         }
 
+        private static readonly DependencyProperty FontWeightProperty = TextElement.FontWeightProperty.AddOwner(typeof(HexByteElement));
 
+        /// <summary>
+        /// The FontWeight property specifies the weight of the font.
+        /// </summary>
+        private FontWeight FontWeight
+        {
+            get => (FontWeight)GetValue(FontWeightProperty);
+            set => SetValue(FontWeightProperty, value);
+        }
 
-        #endregion
+        #endregion Base properties
 
         #region Methods
 
@@ -267,24 +244,22 @@ namespace WpfHexaEditor
         /// </summary>
         public void UpdateVisual()
         {
-            //FontFamily = _parent.FontFamily;
-
             if (IsSelected)
             {
-                //FontWeight = _parent.FontWeight;
+                FontWeight = _parent.FontWeight;
                 Foreground = _parent.ForegroundContrast;
 
                 Background = FirstSelected ? _parent.SelectionFirstColor : _parent.SelectionSecondColor;
             }
             else if (IsHighLight)
             {
-                //FontWeight = _parent.FontWeight;
+                FontWeight = _parent.FontWeight;
                 Foreground = _parent.Foreground;
                 Background = _parent.HighLightColor;
             }
             else if (Action != ByteAction.Nothing)
             {
-                //FontWeight = FontWeights.Bold;
+                FontWeight = FontWeights.Bold;
                 Foreground = _parent.Foreground;
 
                 switch (Action)
@@ -299,7 +274,7 @@ namespace WpfHexaEditor
             }
             else
             {
-                //FontWeight = _parent.FontWeight;
+                FontWeight = _parent.FontWeight;
                 Background = Brushes.Transparent;
                 Foreground = _parent.Foreground;
             }
@@ -312,13 +287,14 @@ namespace WpfHexaEditor
         /// </summary>
         protected override void OnRender(DrawingContext dc)
         {
-           
+            //Draw background
             if (Background != null)
                 dc.DrawRectangle(Background, null, new Rect(0, 0, RenderSize.Width, RenderSize.Height));
 
-            var typeface = new Typeface(_parent.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
+            //Draw text
+            var typeface = new Typeface(_parent.FontFamily, _parent.FontStyle, FontWeight, _parent.FontStretch);
             var formatedText = new FormattedText(Text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, _parent.FontSize, Foreground);
-            dc.DrawText(formatedText, new Point(0, 0));
+            dc.DrawText(formatedText, new Point(2, 0));
         }
 
         private void UpdateAutoHighLiteSelectionByteVisual()
@@ -328,7 +304,6 @@ namespace WpfHexaEditor
                 Byte == _parent.SelectionByte && !IsSelected)
                 Background = _parent.AutoHighLiteSelectionByteBrush;
         }
-
 
         internal void UpdateLabelFromByte()
         {
@@ -546,11 +521,6 @@ namespace WpfHexaEditor
             base.OnKeyDown(e);
         }
 
-        private void UserControl_MouseEnter(object sender, MouseEventArgs e)
-        {
-
-        }
-
         protected override void OnMouseEnter(MouseEventArgs e)
         {
             if (Byte != null && Action != ByteAction.Modified && Action != ByteAction.Deleted &&
@@ -582,7 +552,6 @@ namespace WpfHexaEditor
             if (Byte == null)
                 e.Handled = true;
             
-
             base.OnToolTipOpening(e);
         }
 
@@ -616,9 +585,9 @@ namespace WpfHexaEditor
                         _parent.MoveCaret(TransformToAncestor(_parent).Transform(new Point(0, 0)));
                         break;
                     case KeyDownLabel.SecondChar:
-                        //var width = Text[1].ToString()
-                        //    .GetScreenSize(FontFamily, FontSize, FontStyle, FontWeight, FontStretch).Width.Round(0);
-                        //_parent.MoveCaret(TransformToAncestor(_parent).Transform(new Point(width, 0)));
+                        var width = Text[1].ToString()
+                            .GetScreenSize(_parent.FontFamily, _parent.FontSize, _parent.FontStyle, FontWeight, _parent.FontStretch).Width.Round(0);
+                        _parent.MoveCaret(TransformToAncestor(_parent).Transform(new Point(width, 0)));
                         break;
                     case KeyDownLabel.NextPosition:
                         break;
