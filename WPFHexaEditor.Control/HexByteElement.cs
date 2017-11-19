@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using WpfHexaEditor.Core;
@@ -195,14 +196,34 @@ namespace WpfHexaEditor
 
         #region Base properties
 
-        public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
-            nameof(Brush), typeof(Brush), typeof(HexByteElement), 
-            new PropertyMetadata(Brushes.Black));
+        public static readonly DependencyProperty ForegroundProperty =
+            TextElement.ForegroundProperty.AddOwner(
+                typeof(HexByteElement));
 
         public Brush Foreground
         {
             get => (Brush) GetValue(ForegroundProperty);
             set => SetValue(ForegroundProperty, value);
+        }
+
+        /// <summary>
+        /// DependencyProperty for <see cref="Background" /> property.
+        /// </summary>
+        //[CommonDependencyProperty]
+        public static readonly DependencyProperty BackgroundProperty =
+            TextElement.BackgroundProperty.AddOwner(
+                typeof(HexByteElement),
+                new FrameworkPropertyMetadata(
+                    null,
+                    FrameworkPropertyMetadataOptions.AffectsRender));
+
+        /// <summary>
+        /// The Background property defines the brush used to fill the content area.
+        /// </summary>
+        public Brush Background
+        {
+            get => (Brush)GetValue(BackgroundProperty);
+            set => SetValue(BackgroundProperty, value);
         }
 
 
@@ -222,13 +243,13 @@ namespace WpfHexaEditor
                 //FontWeight = _parent.FontWeight;
                 Foreground = _parent.ForegroundContrast;
 
-                //Background = FirstSelected ? _parent.SelectionFirstColor : _parent.SelectionSecondColor;
+                Background = FirstSelected ? _parent.SelectionFirstColor : _parent.SelectionSecondColor;
             }
             else if (IsHighLight)
             {
                 //FontWeight = _parent.FontWeight;
                 Foreground = _parent.Foreground;
-                //Background = _parent.HighLightColor;
+                Background = _parent.HighLightColor;
             }
             else if (Action != ByteAction.Nothing)
             {
@@ -238,17 +259,17 @@ namespace WpfHexaEditor
                 switch (Action)
                 {
                     case ByteAction.Modified:
-                        //Background = _parent.ByteModifiedColor;
+                        Background = _parent.ByteModifiedColor;
                         break;
                     case ByteAction.Deleted:
-                        //Background = _parent.ByteDeletedColor;
+                        Background = _parent.ByteDeletedColor;
                         break;
                 }
             }
             else
             {
                 //FontWeight = _parent.FontWeight;
-                //Background = Brushes.Transparent;
+                Background = Brushes.Transparent;
                 Foreground = _parent.Foreground;
             }
 
@@ -260,19 +281,21 @@ namespace WpfHexaEditor
         /// </summary>
         protected override void OnRender(DrawingContext dc)
         {
+           
+            if (Background != null)
+                dc.DrawRectangle(Background, null, new Rect(0, 0, RenderSize.Width, RenderSize.Height));
+
             var typeface = new Typeface(_parent.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
-
             var formatedText = new FormattedText("FF", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, _parent.FontSize, Foreground);
-
             dc.DrawText(formatedText, new Point(0, 0));
         }
 
         private void UpdateAutoHighLiteSelectionByteVisual()
         {
-            ////Auto highlite selectionbyte
-            //if (_parent.AllowAutoHightLighSelectionByte && _parent.SelectionByte != null &&
-            //    Byte == _parent.SelectionByte && !IsSelected)
-            //    Background = _parent.AutoHighLiteSelectionByteBrush;
+            //Auto highlite selectionbyte
+            if (_parent.AllowAutoHightLighSelectionByte && _parent.SelectionByte != null &&
+                Byte == _parent.SelectionByte && !IsSelected)
+                Background = _parent.AutoHighLiteSelectionByteBrush;
         }
 
 
@@ -494,9 +517,9 @@ namespace WpfHexaEditor
 
         protected override void OnMouseEnter(MouseEventArgs e)
         {
-            //if (Byte != null && Action != ByteAction.Modified && Action != ByteAction.Deleted &&
-            //    Action != ByteAction.Added && !IsSelected && !IsHighLight)
-            //    Background = _parent.MouseOverColor;
+            if (Byte != null && Action != ByteAction.Modified && Action != ByteAction.Deleted &&
+                Action != ByteAction.Added && !IsSelected && !IsHighLight)
+                Background = _parent.MouseOverColor;
 
             UpdateAutoHighLiteSelectionByteVisual();
 
@@ -508,29 +531,43 @@ namespace WpfHexaEditor
 
         protected override void OnMouseLeave(MouseEventArgs e)
         {
-         
-            //if (Byte != null && Action != ByteAction.Modified && Action != ByteAction.Deleted &&
-            //    Action != ByteAction.Added && !IsSelected && !IsHighLight)
-            //    Background = Brushes.Transparent;
+
+            if (Byte != null && Action != ByteAction.Modified && Action != ByteAction.Deleted &&
+                Action != ByteAction.Added && !IsSelected && !IsHighLight)
+                Background = Brushes.Transparent;
 
             UpdateAutoHighLiteSelectionByteVisual();
 
             base.OnMouseLeave(e);
         }
 
-        private void UserControl_ToolTipOpening(object sender, ToolTipEventArgs e)
+        protected override void OnToolTipOpening(ToolTipEventArgs e)
         {
             if (Byte == null)
                 e.Handled = true;
+            
+
+            base.OnToolTipOpening(e);
         }
 
         #endregion Events delegate
 
         #region Caret events/methods
 
-        private void UserControl_LostFocus(object sender, RoutedEventArgs e) => _parent.HideCaret();
+        protected override void OnLostFocus(RoutedEventArgs e)
+        {
+            _parent.HideCaret();
+            base.OnLostFocus(e);
+        }
 
-        private void UserControl_GotFocus(object sender, RoutedEventArgs e) => UpdateCaret();
+        protected override void OnGotFocus(RoutedEventArgs e)
+        {
+            UpdateCaret();
+
+            base.OnGotFocus(e);
+        }
+
+        //private void UserControl_GotFocus(object sender, RoutedEventArgs e) => UpdateCaret();
 
         private void UpdateCaret()
         {

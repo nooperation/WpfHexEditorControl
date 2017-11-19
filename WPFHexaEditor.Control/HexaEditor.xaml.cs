@@ -2297,7 +2297,7 @@ namespace WpfHexaEditor
                         ByteSpacerPositioning == ByteSpacerPosition.HexBytePanel)
                         AddByteSpacer(hexaDataLineStack, i);
 
-                    var byteControl = new HexByte(this)
+                    var byteControl = new HexByteElement(this)
                     {
                         InternalChange = true,
                         ReadOnlyMode = ReadOnlyMode,
