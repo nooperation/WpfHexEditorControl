@@ -841,7 +841,7 @@ namespace WpfHexaEditor
             if (SelectionStart < FirstVisibleBytePosition)
                 VerticalScrollBar.Value--;
 
-            if (sender is HexByte || sender is StringByte)
+            if (sender is HexByteElement || sender is StringByte)
             {
                 VerticalScrollBar.Value -= visibleLine - 1;
                 SetFocusAtSelectionStart((IByteControl) sender);
@@ -878,7 +878,7 @@ namespace WpfHexaEditor
             if (SelectionStart > LastVisibleBytePosition)
                 VerticalScrollBar.Value++;
 
-            if (sender is HexByte || sender is StringByte)
+            if (sender is HexByteElement || sender is StringByte)
             {
                 VerticalScrollBar.Value += visibleLine - 1;
                 SetFocusAtSelectionStart((IByteControl) sender);
@@ -981,7 +981,7 @@ namespace WpfHexaEditor
                 //update selection
                 SelectionStop = bCtrl.BytePositionInFile != -1 ? bCtrl.BytePositionInFile : LastVisibleBytePosition;
 
-                if (focusedControl is HexByte)
+                if (focusedControl is HexByteElement)
                     UpdateSelectionColor(FirstColor.HexByteData);
                 else
                     UpdateSelectionColor(FirstColor.StringByteData);
@@ -1250,7 +1250,7 @@ namespace WpfHexaEditor
         {
             switch (sender)
             {
-                case HexByte _:
+                case HexByteElement _:
                     SetFocusHexDataPanel(SelectionStart);
                     break;
                 case StringByte _:
@@ -1974,7 +1974,7 @@ namespace WpfHexaEditor
         /// <summary>
         /// Used to make action on all visible hexbyte
         /// </summary>
-        private void TraverseHexBytes(Action<HexByte> act, ref bool exit)
+        private void TraverseHexBytes(Action<HexByteElement> act, ref bool exit)
         {
             var visibleLine = MaxVisibleLine;
             var cnt = 0;
@@ -1984,7 +1984,7 @@ namespace WpfHexaEditor
             {
                 if (cnt++ == visibleLine) break;
                 foreach (var ctrl in hexDataStack.Children)
-                    if (ctrl is HexByte hexCtrl)
+                    if (ctrl is HexByteElement hexCtrl)
                         act(hexCtrl);
 
                 if (exit) return;
@@ -1994,7 +1994,7 @@ namespace WpfHexaEditor
         /// <summary>
         /// Used to make action on all visible hexbyte
         /// </summary>
-        private void TraverseHexBytes(Action<HexByte> act)
+        private void TraverseHexBytes(Action<HexByteElement> act)
         {
             var exit = false;
             TraverseHexBytes(act, ref exit);

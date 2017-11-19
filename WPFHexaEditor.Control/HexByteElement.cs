@@ -92,7 +92,7 @@ namespace WpfHexaEditor
             //Event
             //KeyDown += UserControl_KeyDown;
             //MouseDown += HexChar_MouseDown;
-            //MouseEnter += UserControl_MouseEnter;
+            MouseEnter += UserControl_MouseEnter;
             //MouseLeave += UserControl_MouseLeave;
             //ToolTipOpening += UserControl_ToolTipOpening;
             //GotFocus += UserControl_GotFocus;
@@ -101,7 +101,7 @@ namespace WpfHexaEditor
             //Update width
             UpdateDataVisualWidth();
         }
-
+        
         #endregion Contructor
 
         #region Properties
@@ -215,7 +215,13 @@ namespace WpfHexaEditor
                 typeof(HexByteElement),
                 new FrameworkPropertyMetadata(
                     null,
-                    FrameworkPropertyMetadataOptions.AffectsRender));
+                    FrameworkPropertyMetadataOptions.AffectsRender, BackgroundProperty_Changed));
+
+        private static void BackgroundProperty_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is HexByteElement ctrl)
+                ctrl.IsEnabled = true;
+        }
 
         /// <summary>
         /// The Background property defines the brush used to fill the content area.
@@ -225,6 +231,31 @@ namespace WpfHexaEditor
             get => (Brush)GetValue(BackgroundProperty);
             set => SetValue(BackgroundProperty, value);
         }
+
+        /// <summary>
+        /// DependencyProperty for <see cref="Text" /> property.
+        /// </summary>
+        public static readonly DependencyProperty TextProperty =
+            DependencyProperty.Register(
+                "Text",
+                typeof(string),
+                typeof(HexByteElement),
+                new FrameworkPropertyMetadata(
+                    string.Empty,
+                    FrameworkPropertyMetadataOptions.AffectsMeasure |
+                    FrameworkPropertyMetadataOptions.AffectsRender
+                    ));
+
+        /// <summary>
+        /// The Text property defines the content (text) to be displayed.
+        /// </summary>
+        [Localizability(LocalizationCategory.Text)]
+        public string Text
+        {
+            get { return (string)GetValue(TextProperty); }
+            set { SetValue(TextProperty, value); }
+        }
+
 
 
         #endregion
@@ -286,7 +317,7 @@ namespace WpfHexaEditor
                 dc.DrawRectangle(Background, null, new Rect(0, 0, RenderSize.Width, RenderSize.Height));
 
             var typeface = new Typeface(_parent.FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
-            var formatedText = new FormattedText("FF", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, _parent.FontSize, Foreground);
+            var formatedText = new FormattedText(Text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, typeface, _parent.FontSize, Foreground);
             dc.DrawText(formatedText, new Point(0, 0));
         }
 
@@ -301,21 +332,21 @@ namespace WpfHexaEditor
 
         internal void UpdateLabelFromByte()
         {
-            //if (Byte != null)
-            //{
-            //    switch (_parent.DataStringVisual)
-            //    {
-            //        case DataVisualType.Hexadecimal:
-            //            var chArr = ByteConverters.ByteToHexCharArray(Byte.Value);
-            //            Text = new string(chArr);
-            //            break;
-            //        case DataVisualType.Decimal:
-            //            Text = Byte.Value.ToString("d3");
-            //            break;
-            //    }
-            //}
-            //else
-            //    Text = string.Empty;
+            if (Byte != null)
+            {
+                switch (_parent.DataStringVisual)
+                {
+                    case DataVisualType.Hexadecimal:
+                        var chArr = ByteConverters.ByteToHexCharArray(Byte.Value);
+                        Text = new string(chArr);
+                        break;
+                    case DataVisualType.Decimal:
+                        Text = Byte.Value.ToString("d3");
+                        break;
+                }
+            }
+            else
+                Text = string.Empty;
         }
 
         /// <summary>
@@ -513,6 +544,11 @@ namespace WpfHexaEditor
             UpdateCaret();
 
             base.OnKeyDown(e);
+        }
+
+        private void UserControl_MouseEnter(object sender, MouseEventArgs e)
+        {
+
         }
 
         protected override void OnMouseEnter(MouseEventArgs e)

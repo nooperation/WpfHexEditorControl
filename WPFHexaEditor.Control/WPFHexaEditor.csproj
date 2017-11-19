@@ -84,7 +84,7 @@
     <Compile Include="HexBox.xaml.cs">
       <DependentUpon>HexBox.xaml</DependentUpon>
     </Compile>
-    <Compile Include="HexByte.cs" />
+    <None Include="HexByte.cs" />
     <Compile Include="HexByteElement.cs" />
     <Compile Include="Properties\Resources.fr-CA.Designer.cs">
       <AutoGen>True</AutoGen>
